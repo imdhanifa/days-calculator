@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Date Diff Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-sky-900 to-indigo-900 min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-4">Date Metrics</h1>
+    
+    <div class="flex flex-col gap-3 text-gray-700 text-sm md:text-base" id="results">
+      <!-- Results will appear here -->
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-2 mt-6">
+      <input type="date" id="startDate" class="p-2 border rounded w-full"  />
+      <input type="date" id="endDate" class="p-2 border rounded w-full" />
+    </div>
+
+    <button onclick="showResults()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white rounded p-2 w-full">
+      Calculate
+    </button>
+  </div>
+
+  <script>
+    function dayCalcDetailed(startDate, endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffMs = end - start;
+      const totalSeconds = Math.floor(diffMs / 1000);
+      const totalMinutes = Math.floor(totalSeconds / 60);
+      const totalHours = Math.floor(totalMinutes / 60);
+      const totalDays = Math.floor(totalHours / 24);
+      const weeks = Math.floor(totalDays / 7);
+      const daysInWeek = totalDays % 7;
+
+      let years = end.getFullYear() - start.getFullYear();
+      let months = end.getMonth() - start.getMonth();
+      let days = end.getDate() - start.getDate();
+
+      if (days < 0) {
+        months -= 1;
+        const prevMonth = new Date(end.getFullYear(), end.getMonth(), 0);
+        days += prevMonth.getDate();
+      }
+      if (months < 0) {
+        years -= 1;
+        months += 12;
+      }
+
+      const totalMonths = years * 12 + months;
+
+      let weekdaysWithoutSatSun = 0;
+      let current = new Date(start);
+      while (current <= end) {
+        const day = current.getDay();
+        if (day !== 0 && day !== 6) weekdaysWithoutSatSun++;
+        current.setDate(current.getDate() + 1);
+      }
+
+      return {
+        'Years/Months/Days': `${years} years ${months} months ${days} days`,
+        'Months/Days': `${totalMonths} months ${days} days`,
+        'Weeks/Days': `${weeks} weeks ${daysInWeek} days`,
+        'Total Days': `${totalDays} days`,
+        'Total Hours': `${totalHours} hours`,
+        'Total Minutes': `${totalMinutes} minutes`,
+        'Total Seconds': `${totalSeconds} seconds`,
+        'Weekdays (Mon-Fri only)': `${weekdaysWithoutSatSun}`
+      };
+    }
+
+    function showResults() {
+      const start = document.getElementById('startDate').value;
+      const end = document.getElementById('endDate').value;
+      const result = dayCalcDetailed(start, end);
+      const container = document.getElementById('results');
+      container.innerHTML = '';
+
+      for (const [key, value] of Object.entries(result)) {
+        const row = document.createElement('p');
+        row.innerHTML = `<strong>${key}:</strong> ${value}`;
+        container.appendChild(row);
+      }
+    }
+	
+	function setDefaultDates() {
+	  const today = new Date();
+	  const yyyy = today.getFullYear();
+	  const mm = String(today.getMonth() + 1).padStart(2, '0');
+	  const dd = String(today.getDate()).padStart(2, '0');
+	  const formattedDate = `${yyyy}-${mm}-${dd}`;
+
+	  document.getElementById('startDate').value = formattedDate;
+	  document.getElementById('endDate').value = formattedDate;
+	}
+    // Auto-run on load
+	setDefaultDates();
+    showResults();
+  </script>
+</body>
+</html>
